@@ -32,6 +32,10 @@ data<-droplevels(data)
 nomssites<-read.table("nomssites.txt", sep="\t",header=T, na=" ", dec=".")
 data$numsite<-nomssites$num[match(data$Site, nomssites$nom)]
 
+#tri par ordre d'année
+data$year<-as.numeric(data$year)
+data[order(data$year, decreasing=F),]
+
 ##### sélection datas pour un premier bilan : sites 1 à 16----- 
 dataselec<-data[which(data$Site!="17.  Tangle" & data$Site!="17.  Saligi east" & data$Site!="18.  Malibayong"),]
 dataselec<-droplevels(dataselec)
@@ -592,6 +596,7 @@ summary(lm(yearling~calf)) ##pas de corrélation (sur 9 années)
 
 ###### évolution du sex-ratio dans le temps (global et par site)-----
 mal_ad$sexratio<-mal_ad$Number/(fem_ad$Number+mal_ad$Number)
+annees<-c(2004:2018)
 plot( x =annees,
       y=mal_ad$sexratio[mal_ad$numsite=="1"  ] ,
       type="b", xlab="Années",ylab="Pourcentage de mâles",
@@ -655,7 +660,6 @@ axis(2, at=seq(0,1,0.1),labels=seq(0,1,0.1), las=1)
 abline(h=0.5, col="black")
 #toujours un peu moins de M que de F
 
-#à faire : (i) Ad(t+1~t), (ii)moy/an nb adu, veau, yearling... (iii)covariations entre sites au cours du temps 
 
 ######  Exploration de la densité-dépendance -----
 Ntot <- aggregate(tableau$x, by = list(yr = tableau$year), sum)
@@ -690,8 +694,8 @@ grid.arrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 dev.copy2pdf(file = "Fig_tamarau_1.pdf")
 dev.off()
 
-## --------------------------------------------------
-##
-## Analyse avec un modèle de Gompertz en espace-état
-##
-## --------------------------------------------------
+
+
+
+
+###### à faire : (i) Ad(t+1~t), (ii)moy/an nb adu, veau, yearling... (iii)covariations entre sites au cours du temps -----

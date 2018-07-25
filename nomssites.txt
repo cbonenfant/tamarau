@@ -1,0 +1,19 @@
+nom	num
+1.   Loibfo	1
+2.   Magawang	2
+3.   Bayokbok	3
+4.   Bato Fidel	4
+5.   Inubon	5
+6.   Mibluan	6
+7.   Nagbobong	7
+8.   Fangandatan	8
+9.   Anyayos	9
+10.  Lanas I	10
+11.  Iyan	11
+12.  Tarzan	12
+13.  Talafu East	13
+14.  Talafu West	14
+15.  Malitwang	15
+16.  Lanas II	16
+17.  Saligi east	17
+18.  Malibayong	18
