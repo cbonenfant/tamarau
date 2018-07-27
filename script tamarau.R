@@ -8,11 +8,11 @@ library(gridExtra)
 setwd("C:/Users/Manon GHISLAIN/Documents/tamarau/datas pour analyses")
 
 load("data.Rdata")
-#Ou pour être certain d'avoir la dernière MAJ (sur google drive):
-temp <- tempfile(fileext = ".Rdata")
-dl <- drive_download(
-  as_id("https://drive.google.com/file/d/1nLplDsw_bxB2D62RpokigYUxtecKQymv/view?usp=sharing"), path = temp, overwrite = TRUE)
-load(temp)
+# #Ou pour être certain d'avoir la dernière MAJ (sur google drive):
+# temp <- tempfile(fileext = ".Rdata")
+# dl <- drive_download(
+#   as_id("https://drive.google.com/file/d/1nLplDsw_bxB2D62RpokigYUxtecKQymv/view?usp=sharing"), path = temp, overwrite = TRUE)
+# load(temp)
 
 ##### BILAN DES DONNESS - mise en forme ------------------
 head(data)
@@ -44,22 +44,64 @@ zfac <-as.factor( dataselec$year[dataselec$Age=="Ad" & dataselec$count=="AN" & d
 mescouleurs <- rainbow(length(levels(zfac)))
 plot(dataselec$Number[dataselec$Age=="Ad" & dataselec$count=="AN" & dataselec$Sexe=="M"], 
      dataselec$Site[dataselec$Age=="Ad" & dataselec$count=="AN" & dataselec$Sexe=="M"] 
-     , col = mescouleurs[zfac], pch = rank(levels(zfac)),
+     , col = mescouleurs[zfac], pch = rank(as.numeric(levels(zfac))),
      xlab="Nombre d'individus (M Ad)",
      ylab="Sites")
-legend("topright", inset = 0.02, pch = rank(levels(zfac)), legend = levels(zfac), col = mescouleurs)
-
-boxplot(dataselec$Number[dataselec$Age=="Ad" & dataselec$count=="AN" & dataselec$Sexe=="M"]
-        ~dataselec$Site[dataselec$Age=="Ad" & dataselec$count=="AN" & dataselec$Sexe=="M"],
-        las=2)
-
-
-
+legend("topright", inset = 0.02, pch = rank(as.numeric(levels(zfac))), legend = levels(zfac), col = mescouleurs)
 
 ####### détails par site-clage-age-sex-----
 annees<-unique(data$year)
 facsite <-as.factor(data$numsite)
 couleurssites<-rainbow(length(levels(facsite)))
+####### Tous individus -----
+ts_ind_data<-data[which(data$count=="AN"),]
+ts_ind<-aggregate(ts_ind_data$Number, by=list(year=ts_ind_data$year, numsite=ts_ind_data$numsite), FUN=sum)
+plot( x =annees,
+      y=ts_ind$x[ts_ind$numsite=="1"  ] ,
+      type="b", xlab="Années",ylab="Nombre d'individus",
+      pch=1 ,cex=1,  bty="n",  axes = FALSE,
+      ylim=c(0,110), col=couleurssites[1],
+      main="Nombre d'individus par site par année") 
+axis(1, at=seq(2004,2018,1), labels=annees,las=2)
+axis(2, at=seq(0,110,5),labels=seq(0,110,5), las=1)
+legend("topleft", inset = 0.02, 
+       pch = rank(as.numeric(levels(facsite))), legend = levels(facsite), col = couleurssites,
+       ncol=4)
+points(x=annees, y=ts_ind$x[ts_ind$numsite=="2"  ],type="b",
+       pch=2, cex=1, col=couleurssites[2])
+points(x=annees, y=ts_ind$x[ts_ind$numsite=="3"  ],type="b",
+       pch=3, cex=1, col=couleurssites[3])
+points(x=annees, y=ts_ind$x[ts_ind$numsite=="4"  ],type="b",
+       pch=4, cex=1, col=couleurssites[4])
+points(x=annees, y=ts_ind$x[ts_ind$numsite=="5"  ],type="b",
+       pch=5, cex=1, col=couleurssites[5])
+points(x=annees, y=ts_ind$x[ts_ind$numsite=="6"  ],type="b",
+       pch=6, cex=1, col=couleurssites[6])
+points(x=annees, y=ts_ind$x[ts_ind$numsite=="7"  ],type="b",
+       pch=7, cex=1, col=couleurssites[7])
+points(x=annees, y=ts_ind$x[ts_ind$numsite=="8"  ],type="b",
+       pch=8, cex=1, col=couleurssites[8])
+points(x=annees, y=ts_ind$x[ts_ind$numsite=="9"  ],type="b",
+       pch=9, cex=1, col=couleurssites[9])
+points(x=annees, y=ts_ind$x[ts_ind$numsite=="10"  ],type="b",
+       pch=10, cex=1, col=couleurssites[10])
+points(x=annees, y=ts_ind$x[ts_ind$numsite=="11"  ],type="b",
+       pch=11, cex=1, col=couleurssites[11])
+points(x=annees, y=ts_ind$x[ts_ind$numsite=="12"  ],type="b",
+       pch=12, cex=1, col=couleurssites[12])
+points(x=annees, y=ts_ind$x[ts_ind$numsite=="13"  ],type="b",
+       pch=13, cex=1, col=couleurssites[13])
+points(x=annees, y=ts_ind$x[ts_ind$numsite=="14"  ],type="b",
+       pch=14, cex=1, col=couleurssites[14])
+points(x=annees, y=ts_ind$x[ts_ind$numsite=="15"  ],type="b",
+       pch=15, cex=1, col=couleurssites[15])
+points(x=annees, y=ts_ind$x[ts_ind$numsite=="16"  ],type="b",
+       pch=16, cex=1, col=couleurssites[16])
+points(x=annees, y=c(rep(NA,3),ts_ind$x[ts_ind$numsite=="17"]),type="b",
+       pch=17, cex=1, col=couleurssites[17])
+points(x=annees, y=c(rep(NA,3),ts_ind$x[ts_ind$numsite=="18"]),type="b",
+       pch=18, cex=1, col=couleurssites[18])
+
 ####### Males Adultes -----------
 mal_ad<-data[which(data$Age=="Ad" & data$Sexe=="M" & data$count=="AN"),]
 plot( x =annees,
@@ -71,8 +113,8 @@ plot( x =annees,
 axis(1, at=seq(2004,2018,1), labels=annees,las=2)
 axis(2, at=seq(0,20,5),labels=seq(0,20,5), las=1)
 legend("topleft", inset = 0.02, 
-       pch = rank(levels(facsite)), legend = levels(facsite), col = couleurssites,
-       ncol=2)
+       pch = rank(as.numeric(levels(facsite))), legend = levels(facsite), col = couleurssites,
+       ncol=4)
 points(x=annees, y=mal_ad$Number[mal_ad$numsite=="2"  ],type="b",
        pch=2, cex=1, col=couleurssites[2])
 points(x=annees, y=mal_ad$Number[mal_ad$numsite=="3"  ],type="b",
@@ -119,7 +161,7 @@ plot( x =annees,
 axis(1, at=seq(2004,2018,1), labels=annees,las=2)
 axis(2, at=seq(0,55,5),labels=seq(0,55,5), las=1)
 legend("topleft", inset = 0.02, 
-       pch = rank(levels(facsite)), legend = levels(facsite), col = couleurssites,
+       pch = rank(as.numeric(levels(facsite))), legend = levels(facsite), col = couleurssites,
        ncol=2)
 points(x=annees, y=fem_ad$Number[fem_ad$numsite=="2"  ],type="b",
        pch=2, cex=1, col=couleurssites[2])
@@ -167,8 +209,8 @@ plot( x =annees,
 axis(1, at=seq(2004,2018,1), labels=annees,las=2)
 axis(2, at=seq(0,10,5),labels=seq(0,10,5), las=1)
 legend("topleft", inset = 0.02, 
-       pch = rank(levels(facsite)), legend = levels(facsite), col = couleurssites,
-       ncol=2)
+       pch = rank(as.numeric(levels(facsite))), legend = levels(facsite), col = couleurssites,
+       ncol=3)
 points(x=annees, y=unk_ad$Number[unk_ad$numsite=="2"  ],type="b",
        pch=2, cex=1, col=couleurssites[2])
 points(x=annees, y=unk_ad$Number[unk_ad$numsite=="3"  ],type="b",
@@ -216,7 +258,7 @@ plot( x =annees,
 axis(1, at=seq(2004,2018,1), labels=annees,las=2)
 axis(2, at=seq(0,15,5),labels=seq(0,15,5), las=1)
 legend("topleft", inset = 0.02, 
-       pch = rank(levels(facsite)), legend = levels(facsite), col = couleurssites,
+       pch = rank(as.numeric(levels(facsite))), legend = levels(facsite), col = couleurssites,
        ncol=2)
 points(x=annees, y=mal_j$Number[mal_j$numsite=="2"  ],type="b",
        pch=2, cex=1, col=couleurssites[2])
@@ -264,7 +306,7 @@ plot( x =annees,
 axis(1, at=seq(2004,2018,1), labels=annees,las=2)
 axis(2, at=seq(0,10,5),labels=seq(0,10,5), las=1)
 legend("topleft", inset = 0.02, 
-       pch = rank(levels(facsite)), legend = levels(facsite), col = couleurssites,
+       pch = rank(as.numeric(levels(facsite))), legend = levels(facsite), col = couleurssites,
        ncol=2)
 points(x=annees, y=fem_j$Number[fem_j$numsite=="2"  ],type="b",
        pch=2, cex=1, col=couleurssites[2])
@@ -312,7 +354,7 @@ plot( x =annees,
 axis(1, at=seq(2004,2018,1), labels=annees,las=2)
 axis(2, at=seq(0,25,5),labels=seq(0,25,5), las=1)
 legend("topleft", inset = 0.02, 
-       pch = rank(levels(facsite)), legend = levels(facsite), col = couleurssites,
+       pch = rank(as.numeric(levels(facsite))), legend = levels(facsite), col = couleurssites,
        ncol=2)
 points(x=annees, y=unk_j$Number[unk_j$numsite=="2"  ],type="b",
        pch=2, cex=1, col=couleurssites[2])
@@ -362,7 +404,7 @@ plot( x =annees,
 axis(1, at=seq(2004,2018,1), labels=annees,las=2)
 axis(2, at=seq(0,6,1),labels=seq(0,6,1), las=1)
 legend("topleft", inset = 0.02, 
-       pch = rank(levels(facsite)), legend = levels(facsite), col = couleurssites,
+       pch = rank(as.numeric(levels(facsite))), legend = levels(facsite), col = couleurssites,
        ncol=2)
 points(x=annees, y=mal_y$Number[mal_y$numsite=="2"  ],type="b",
        pch=2, cex=1, col=couleurssites[2])
@@ -399,7 +441,7 @@ points(x=annees, y=c(rep(NA,3),mal_y$Number[mal_y$numsite=="17"]),type="b",
 points(x=annees, y=c(rep(NA,3),mal_y$Number[mal_y$numsite=="18"]),type="b",
        pch=18, cex=1, col=couleurssites[18])
 
-####### Femelles Juv/subadult -----
+####### Femelles Yearling -----
 fem_y<-data[which(data$Age=="Y" & data$Sexe=="F" & data$count=="AN"),]
 plot( x =annees,
       y=fem_y$Number[fem_y$numsite=="1"  ] ,
@@ -410,7 +452,7 @@ plot( x =annees,
 axis(1, at=seq(2004,2018,1), labels=annees,las=2)
 axis(2, at=seq(0,6,1),labels=seq(0,6,1), las=1)
 legend("topleft", inset = 0.02, 
-       pch = rank(levels(facsite)), legend = levels(facsite), col = couleurssites,
+       pch = rank(as.numeric(levels(facsite))), legend = levels(facsite), col = couleurssites,
        ncol=2)
 points(x=annees, y=fem_y$Number[fem_y$numsite=="2"  ],type="b",
        pch=2, cex=1, col=couleurssites[2])
@@ -447,6 +489,8 @@ points(x=annees, y=c(rep(NA,3),fem_y$Number[fem_y$numsite=="17"]),type="b",
 points(x=annees, y=c(rep(NA,3),fem_y$Number[fem_y$numsite=="18"]),type="b",
        pch=18, cex=1, col=couleurssites[18])
 
+
+
 ####### Unknown Juv/subadult -----
 unk_y<-data[which(data$Age=="Y" & data$Sexe=="U" & data$count=="AN"),]
 plot( x =annees,
@@ -458,7 +502,7 @@ plot( x =annees,
 axis(1, at=seq(2004,2018,1), labels=annees,las=2)
 axis(2, at=seq(0,25,5),labels=seq(0,25,5), las=1)
 legend("topleft", inset = 0.02, 
-       pch = rank(levels(facsite)), legend = levels(facsite), col = couleurssites,
+       pch = rank(as.numeric(levels(facsite))), legend = levels(facsite), col = couleurssites,
        ncol=2)
 points(x=annees, y=unk_y$Number[unk_y$numsite=="2"  ],type="b",
        pch=2, cex=1, col=couleurssites[2])
@@ -498,8 +542,6 @@ points(x=annees, y=c(rep(NA,3),unk_y$Number[unk_y$numsite=="18"]),type="b",
 
 
 
-
-
 ####### Calf -----
 all_c<-data[which(data$Age=="C" & data$count=="AN"),]
 all_c<-aggregate(all_c$Number, by=list(Site=all_c$numsite, year=all_c$year ), FUN=sum)
@@ -512,7 +554,7 @@ plot( x =(2009:2018),
 axis(1, at=seq(2009,2018,1), labels=(2009:2018),las=2)
 axis(2, at=seq(0,25,5),labels=seq(0,25,5), las=1)
 legend("topleft", inset = 0.02, 
-       pch = rank(levels(facsite)), legend = levels(facsite), col = couleurssites,
+       pch = rank(as.numeric(levels(facsite))), legend = levels(facsite), col = couleurssites,
        ncol=2)
 points(x=(2009:2018), y=all_c$x[all_c$Site=="2"  ],type="b",
        pch=2, cex=1, col=couleurssites[2])
@@ -550,18 +592,32 @@ points(x=(2009:2018), y=all_c$x[all_c$Site=="18"],type="b",
        pch=18, cex=1, col=couleurssites[18])
 
 
-
-
-
-
-
-
 ####### relation Total Number TN et Actual Number AN (=doublons pris en compte) ----
 #suppr 2005 car juste TN
 dataselec2<-dataselec[which(dataselec$year!=2005),]
-actual_number<-dataselec2$Number[dataselec2$Age=="Ad" & dataselec2$count=="AN" & dataselec2$Sexe=="M"]
-total_number<-dataselec2$Number[dataselec2$Age=="Ad" & dataselec2$count=="TN" & dataselec2$Sexe=="M"]
-plot(total_number,actual_number)
+actual_number<-dataselec2$Number[dataselec2$count=="AN" & dataselec2$Sexe=="M"]
+total_number<-dataselec2$Number[dataselec2$count=="TN" & dataselec2$Sexe=="M"]
+plot(total_number,actual_number, main="relation entre Total Number et Actual Number (M)")
+reg<-lm(actual_number~total_number)
+summary(reg) #significativemet corréllé ***
+abline(reg, col="blue")
+# Equation de la droite de regression : 
+coeff=coefficients(reg)
+eq = paste0("y = ", round(coeff[2],1), "*x ", round(coeff[1],1))
+
+actual_number<-dataselec2$Number[dataselec2$count=="AN" & dataselec2$Sexe=="F"]
+total_number<-dataselec2$Number[dataselec2$count=="TN" & dataselec2$Sexe=="F"]
+plot(total_number,actual_number, main="relation entre Total Number et Actual Number (F)")
+reg<-lm(actual_number~total_number)
+summary(reg) #significativemet corréllé ***
+abline(reg, col="blue")
+# Equation de la droite de regression : 
+coeff=coefficients(reg)
+eq = paste0("y = ", round(coeff[2],1), "*x ", round(coeff[1],1))
+
+actual_number<-dataselec2$Number[dataselec2$count=="AN" & dataselec2$Age=="C"]
+total_number<-dataselec2$Number[dataselec2$count=="TN" & dataselec2$Age=="C"]
+plot(total_number,actual_number, main="relation entre Total Number et Actual Number (Calf)")
 reg<-lm(actual_number~total_number)
 summary(reg) #significativemet corréllé ***
 abline(reg, col="blue")
@@ -574,11 +630,16 @@ eq = paste0("y = ", round(coeff[2],1), "*x ", round(coeff[1],1))
 dataselec3<-dataselec[which(dataselec$count=="AN" &  dataselec$year>=2006),]
 tableau<-aggregate(dataselec3$Number, by=list(Age=dataselec3$Age, year= dataselec3$year), FUN=sum)
 plot( x = (2006:2018),  y=as.numeric(tableau$x[tableau$Age=="Ad"])  , type="b", xlab="",ylab="",
-      pch=19 ,cex=0.5, ylim=c(0,300), bty="n",  axes = FALSE, col="blue") #adultes
+      pch=19 ,cex=0.5, ylim=c(0,300), bty="n",  axes = FALSE, col="blue",
+      main="Nombre d'individus par an et par âge") #adultes
 annees<-c(2006:2018)
 axis(1, at=seq(2006,2018,1), labels=annees,las=2)
 axis(2, at=seq(0,300,50),labels=seq(0,300,50), las=1)
-
+legend("topleft", inset = 0.02,
+       legend = c( "Adulte", "Juvénile/Subadulte", "Yearling", "Calf"), 
+       lty = c(1, 1, 1), lwd = c(2, 2, 2),
+        col = c( "blue", "red", "black", "orange"), 
+       bty = "n", cex = 1) 
 points(x=(2006:2018), y=as.numeric(tableau$x[tableau$Age=="J"]),type="b",
        pch=19, cex=0.5, col="red")  #juv/subadult
 points(x=(2006:2018), y=as.numeric(tableau$x[tableau$Age=="Y"]),type="b",
@@ -592,7 +653,8 @@ calf<-tableau$x[tableau$year>=2009 & tableau$year!=2018 & tableau$Age=="C"]
 plot(yearling,calf)
 summary(lm(yearling~calf)) ##pas de corrélation (sur 9 années)
 
-
+#boxplot pour "en moyenne", proportions jeunes par rapport à adultes
+boxplot(tableau$x~tableau$Age,main="Nombre d'individus par an et par âge")
 
 ###### évolution du sex-ratio dans le temps (global et par site)-----
 mal_ad$sexratio<-mal_ad$Number/(fem_ad$Number+mal_ad$Number)
@@ -605,9 +667,9 @@ plot( x =annees,
       main="Pourcentage de mâles (adultes) par site par année") 
 axis(1, at=seq(2004,2018,1), labels=annees,las=2)
 axis(2, at=seq(0,1,0.1),labels=seq(0,1,0.1), las=1)
-legend("top", inset = 0.01, 
-       pch = rank(levels(facsite)), legend = levels(facsite), col = couleurssites,
-       ncol=3)
+legend("topleft", inset = 0.01, 
+       pch = rank(as.numeric(levels(facsite))), legend = levels(facsite), col = couleurssites,
+       ncol=2, cex=0.8)
 points(x=annees, y=mal_ad$sexratio[mal_ad$numsite=="2"  ],type="b",
        pch=2, cex=1, col=couleurssites[2])
 points(x=annees, y=mal_ad$sexratio[mal_ad$numsite=="3"  ],type="b",
@@ -644,7 +706,7 @@ points(x=annees, y=c(rep(NA,3),mal_ad$sexratio[mal_ad$numsite=="18"]),type="b",
        pch=18, cex=1, col=couleurssites[18])
 
 #boxplotparsite
-boxplot(mal_ad$sexratio~mal_ad$numsite,las=1, main="Pourcentage de mâles (adultes) par site par année")
+boxplot(mal_ad$sexratio~mal_ad$numsite,las=1, main="Pourcentage de mâles (adultes) par site par année", xlab="sites")
 
 #global (somme des sites) par année
 sexratioM<-aggregate(mal_ad$Number, by=list(year=mal_ad$year),FUN=sum)
@@ -698,4 +760,3 @@ dev.off()
 
 
 
-###### à faire : (i) Ad(t+1~t), (ii)moy/an nb adu, veau, yearling... (iii)covariations entre sites au cours du temps -----
