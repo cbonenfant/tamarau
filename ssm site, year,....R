@@ -5,7 +5,7 @@ load("data.Rdata")
 
 ## State space model lambda~site------------
 
-data_ssm<-data[which(data$year>=2006 & data$count=="AN" & data$numsite!="17" & data$numsite!="18"),]
+data_ssm<-data[which(data$year>=2006 & data$count=="AN"),] #& data$numsite!="17" & data$numsite!="18"),]
 table_data<-( aggregate(data_ssm$Number, by=list(year=data_ssm$year, site=data_ssm$numsite), FUN=sum) )
 
 #table_data$x[table_data$x==0]<-0.0000000001
@@ -34,9 +34,14 @@ cat("
     sigma.proc ~ dunif(0, 10)       # Prior sd of state process
     sigma2.proc <- pow(sigma.proc, 2)
     tau.proc <- pow(sigma.proc, -2)
-    sigma.obs ~ dunif(0, 100)       # Prior sd of observation process
-    sigma2.obs <- pow(sigma.obs, 2)
-    tau.obs <- pow(sigma.obs, -2)
+    
+    for(s in 1:S){                       # Prior sd of observation process for each site
+    sigma.obs[s] ~ dunif(0, 10)       
+    sigma2.obs[s] <- pow(sigma.obs[s], 2)
+    tau.obs[s] <- pow(sigma.obs[s], -2)
+    }    
+
+    
 
     # Likelihood
     
@@ -51,8 +56,13 @@ cat("
     # Observation process
     
     for (t in 1:Y){
-      for(s in 1:S){
-    y[s,t] ~ dnorm(N.est[s,t], tau.obs) }
+      for(s in 1:16){
+    y[s,t] ~ dnorm(N.est[s,t], tau.obs[s]) }
+    }
+
+    for(s in 17:18){
+      for (t in 4:Y){
+    y[s,t] ~ dnorm(N.est[s,t], tau.obs[s]) }
     }
 
     }
@@ -65,18 +75,18 @@ jags.data <- list(y = tab_y, Y = n.years, S = n.sites)
 # Initial values
 inits <- function(){list(sigma.proc = runif(1, 0, 5),
                          mean.lambda = runif(1, 0.5, 1.5),
-                         sigma.obs = runif(1, 0, 10),
-                         N.est = array(c(runif(16, 1, 150), rep(NA, (n.sites*(n.years-1))) ) , dim = c(16,13) )
+                         sigma.obs = runif(n.sites, 0, 6),
+                         N.est = array(c(runif(n.sites, 1, 150), rep(NA, (n.sites*(n.years-1))) ) , dim = c(n.sites,n.years) )
                                      )}
 
 # Parameters monitored
 parameters <- c("lambda", "mean.lambda",
                 "sigma.obs", "sigma.proc",
-                "sigma2.obs", "sigma2.proc",
+                "sigma2.obs", "sigma2.proc", "tau.obs",
                 "N.est")
 
 # MCMC settings
-ni <- 250000
+ni <- 25000
 nb <- floor(ni/4)
 nt <- max(1, floor((ni - nb) / 1000))
 nc <- 3
@@ -90,7 +100,7 @@ plot(ssm$BUGSoutput$summary[,8])
 
 
 #graph to summarize results
-fitted <- lower <- upper <- array( NA, dim=c(S,Y))
+fitted <- lower <- upper <- array( NA, dim=c(n.sites,n.years))
 
 for (y in 1:n.years){
   for (s in 1:n.sites){
@@ -108,10 +118,10 @@ plot(0, 0, ylim = c(m1, m2), xlim = c(0.5, n.years),
      col = "black", type = "l", lwd = 2, frame = FALSE, axes = FALSE)
 axis(2, las = 1)
 axis(1, at = 0:n.years, labels = rep(c(NA,2006:2018)), tcl = -0.25)
-polygon(x = c(1:n.years, n.years:1), y = c(lower[2,], upper[2,n.years:1]),
+polygon(x = c(1:n.years, n.years:1), y = c(lower[18,], upper[18,n.years:1]),
         col = "grey90", border = "grey90")
 points(y, type = "l", col = "black", lwd = 2)
-points(fitted[2,], type = "l", col = "blue", lwd = 2)
+points(fitted[18,], type = "l", col = "blue", lwd = 2)
 legend(x = 1, y = m2, legend = c( "Observed", "Estimated"),
        lty = c(1, 1, 1), lwd = c(2, 2, 2), col = c( "black", "blue"),
        bty = "n", cex = 1)
