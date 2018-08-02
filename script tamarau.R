@@ -24,17 +24,7 @@ table(data$year)
 
 table(data$year,data$Age)#2004->2008 : les calfs ne sont pas différenciés
 table(data$year,data$Site) #2004->2006 : sites 17 et 18 non comptés
-#2007->site 17 différent?? : c'est le même!! #à modifier
-data$Site[data$Site=="17.  Tangle"]<-"17.  Saligi east"
-data<-droplevels(data)
 
-#renommer les sites par un num
-nomssites<-read.table("nomssites.txt", sep="\t",header=T, na=" ", dec=".")
-data$numsite<-nomssites$num[match(data$Site, nomssites$nom)]
-
-#tri par ordre d'année
-data$year<-as.numeric(data$year)
-data[order(data$year, decreasing=F),]
 
 ##### sélection datas pour un premier bilan : sites 1 à 16----- 
 dataselec<-data[which(data$Site!="17.  Tangle" & data$Site!="17.  Saligi east" & data$Site!="18.  Malibayong"),]
@@ -721,7 +711,10 @@ axis(1, at=seq(2004,2018,1), labels=annees,las=2)
 axis(2, at=seq(0,1,0.1),labels=seq(0,1,0.1), las=1)
 abline(h=0.5, col="black")
 #toujours un peu moins de M que de F
-
+#test d'ue tendance avec glm (binomial)
+y<-cbind(sexratioM$x,sexratioF$x)
+model_sexratio<-glm(y~as.numeric(sexratioM$year), family=binomial(link = "logit"))
+anova(model_sexratio, test = "Chisq")
 
 ######  Exploration de la densité-dépendance -----
 Ntot <- aggregate(tableau$x, by = list(yr = tableau$year), sum)
