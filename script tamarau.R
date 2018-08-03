@@ -751,5 +751,12 @@ dev.off()
 
 
 
-
-
+###### Matrices de variances/covariances site/année -----
+site_an <- array( NA, dim=c(10,12,length(unique(dataselec3$numsite))))
+Cov<-array(NA, dim=c(10,16,16))
+for(y in 4:length(unique(dataselec3$year))){
+  for(s in 1:length(unique(dataselec3$numsite))){
+ site_an[y-3,,s]<-dataselec3$Number[dataselec3$numsite==s & dataselec3$year==(2005+y)] 
+ Cov[y-3,,]<-cov(site_an[y-3,,])
+  }
+}
