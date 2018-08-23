@@ -643,6 +643,7 @@ calf<-tableau$x[tableau$year>=2009 & tableau$year!=2018 & tableau$Age=="C"]
 plot(yearling,calf)
 summary(lm(yearling~calf)) ##pas de corrélation (sur 9 années)
 
+
 #boxplot pour "en moyenne", proportions jeunes par rapport à adultes
 boxplot(tableau$x~tableau$Age,main="Nombre d'individus par an et par âge")
 
