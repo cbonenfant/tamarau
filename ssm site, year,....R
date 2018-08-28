@@ -6,7 +6,7 @@ load("data.Rdata")
 ## State space model lambda~site------------
 
 data_ssm<-data[which(data$year>=2006 & data$count=="AN"),] #& data$numsite!="17" & data$numsite!="18"),]
-table_data<-( aggregate(data_ssm$Number, by=list(year=data_ssm$year, site=data_ssm$numsite), FUN=sum) )
+table_data<-( aggregate(data_ssm$Number, by=list(year=data_ssm$year, site=data_ssm$Site), FUN=sum) )
 
 #table_data$x[table_data$x==0]<-0.0000000001
 
@@ -24,63 +24,78 @@ n.sites<-nrow(tab_y)
 sink("ssm.txt")
 cat("
     model {
-    
+
     # Priors and constraints
-    
+
     for(s in 1:S){
     N.est[s,1] ~ dunif(1, 150)        # Prior for initial population size
     }
-    mean.lambda ~ dunif(0, 2)         # Prior for mean growth rate
+    #mean.lambda ~ dunif(0, 2)         # Prior for mean growth rate
     sigma.proc ~ dunif(0, 10)       # Prior sd of state process
     sigma2.proc <- pow(sigma.proc, 2)
     tau.proc <- pow(sigma.proc, -2)
-    
+
     for(s in 1:S){                       # Prior sd of observation process for each site
-    sigma.obs[s] ~ dunif(0, 10)       
+    sigma.obs[s] ~ dunif(0, 10)
     sigma2.obs[s] <- pow(sigma.obs[s], 2)
     tau.obs[s] <- pow(sigma.obs[s], -2)
-    }    
+    }
 
-    
+    mu ~ dnorm(0, 0.00001)
+    for(s in 1:S){
+        beta[s] ~ dnorm(0, 0.00001)
+    } #s
 
-    # Likelihood
-    
+
+    ##
+    ## Likelihood
+    ##
+
     # State process
-    
+
     for (t in 1:(Y-1)){
       for(s in 1:S){
-    lambda[s,t] ~ dnorm(mean.lambda, tau.proc)T(-10, 1.15)
-    N.est[s,t+1] <- N.est[s,t] * lambda[s,t] }
-    }
+        lambda[s, t] ~ dnorm(mean.lambda[s, t], tau.proc)T(-10, 1.15)
+        mean.lambda[s, t] <- mu + beta[s] ## Ajoute la contrainte sur lambda
+        N.est[s, t+1] <- N.est[s, t] * lambda[s, t]
+      } #s
+    } #t
 
     # Observation process
-    
+
     for (t in 1:Y){
       for(s in 1:16){
-    y[s,t] ~ dnorm(N.est[s,t], tau.obs[s]) }
-    }
+        y[s, t] ~ dnorm(N.est[s, t], tau.obs[s])
+      } #s
+    } #t
 
-    for(s in 17:18){
+    for(s in 17:18){ # tu inverses les compteurs??
       for (t in 4:Y){
-    y[s,t] ~ dnorm(N.est[s,t], tau.obs[s]) }
-    }
+        y[s, t] ~ dnorm(N.est[s, t], tau.obs[s])
+      } #t
+    } #t
 
-    }
+    } #model
+
     ",fill = TRUE)
 sink()
 
 
 # Bundle data
+n.sites <- dim(tab_y)[1]
+n.years <- dim(tab_y)[2]
 jags.data <- list(y = tab_y, Y = n.years, S = n.sites)
 # Initial values
 inits <- function(){list(sigma.proc = runif(1, 0, 5),
-                         mean.lambda = runif(1, 0.5, 1.5),
+                                        #mean.lambda = runif(1, 0.5, 1.5),
+                         mu = rnorm(1, 0, 3),
+                         beta = rnorm(n.sites, 0,  3), 
                          sigma.obs = runif(n.sites, 0, 6),
                          N.est = array(c(runif(n.sites, 1, 150), rep(NA, (n.sites*(n.years-1))) ) , dim = c(n.sites,n.years) )
                                      )}
 
 # Parameters monitored
-parameters <- c("lambda", "mean.lambda",
+parameters <- c("lambda", #"mean.lambda",
                 "sigma.obs", "sigma.proc",
                 "sigma2.obs", "sigma2.proc", "tau.obs",
                 "N.est")
